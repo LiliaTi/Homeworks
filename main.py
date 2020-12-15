@@ -2,6 +2,7 @@ import requests
 import telebot
 import os
 from dotenv import load_dotenv
+import textwrap as tw
 
 
 URL = 'https://dvmn.org/api/long_polling/'
@@ -15,7 +16,7 @@ def get_response(url, headers, params={}):
 
 def main():
     load_dotenv()
-    chat_id = os.getenv('CHAT_ID')
+    tg_chat_id = os.getenv('TG_CHAT_ID')
     devman_token = 'Token {}'.format(os.getenv('DEVMAN_TOKEN'))
     bot_token = os.getenv('BOT_TOKEN')
     headers = {
@@ -24,75 +25,31 @@ def main():
 
     bot = telebot.TeleBot(token=bot_token)
 
-    try:
-        response = get_response(URL, headers)
-        for attempt in response['new_attempts']:
-            if attempt['is_negative']:
-                result = f'''У Вас проверили работу "{attempt['lesson_title']}".
-    К сожалению, в работе нашлись ошибки'''
-                bot.send_message(chat_id, result)
-            else:
-                result = f'''У Вас проверили работу "{attempt['lesson_title']}".
-    Преподавателю всё понравилось, можно приступать к следущему уроку!'''
-                bot.send_message(chat_id, result)
-    except requests.exceptions.ReadTimeout:
-        response = get_response(URL, headers)
-        for attempt in response['new_attempts']:
-            if attempt['is_negative']:
-                result = f'''У Вас проверили работу "{attempt['lesson_title']}".
-                К сожалению, в работе нашлись ошибки'''
-                bot.send_message(chat_id, result)
-            else:
-                result = f'''У Вас проверили работу "{attempt['lesson_title']}".
-    Преподавателю всё понравилось, можно приступать к следущему уроку!'''
-                bot.send_message(chat_id, result)
-    except ConnectionError:
-        response = get_response(URL, headers)
-        for attempt in response['new_attempts']:
-            if attempt['is_negative']:
-                result = f'''У Вас проверили работу "{attempt['lesson_title']}".
-    К сожалению, в работе нашлись ошибки'''
-                bot.send_message(chat_id, result)
-            else:
-                result = f'''У Вас проверили работу "{attempt['lesson_title']}".
-    Преподавателю всё понравилось, можно приступать к следущему уроку!'''
-                bot.send_message(chat_id, result)
-    timestamp = response['new_attempts'][0]['timestamp']
+    timestamp = None
     while True:
         params = {'timestamp': timestamp}
         try:
             response = get_response(URL, headers, params)
             for attempt in response['new_attempts']:
                 if attempt['is_negative']:
-                    result = f'''У Вас проверили работу "{attempt['lesson_title']}".
-    К сожалению, в работе нашлись ошибки'''
-                    bot.send_message(chat_id, result)
+                    text = f'''\
+                    	 У Вас проверили работу "{attempt['lesson_title']}".
+                         К сожалению, в работе нашлись ошибки
+                        '''
+                    result = tw.dedent(text)
+                    bot.send_message(tg_chat_id, result)
                 else:
-                    result = f'''У Вас проверили работу "{attempt['lesson_title']}".
-    Преподавателю всё понравилось, можно приступать к следущему уроку!'''
-                    bot.send_message(chat_id, result)
+                    text =  f'''\
+                    	У Вас проверили работу "{attempt['lesson_title']}".
+                        Преподавателю всё понравилось, можно приступать к следущему уроку!
+                        '''
+                    result = tw.dedent(text)
+                    bot.send_message(tg_chat_id, result)
+            timestamp = response['new_attempts'][0]['timestamp']
         except requests.exceptions.ReadTimeout:
-            response = get_response(URL, headers, params)
-            for attempt in response['new_attempts']:
-                if attempt['is_negative']:
-                    result = f'''У Вас проверили работу "{attempt['lesson_title']}".
-    К сожалению, в работе нашлись ошибки'''
-                    bot.send_message(chat_id, result)
-                else:
-                    result = f'''У Вас проверили работу "{attempt['lesson_title']}".
-    Преподавателю всё понравилось, можно приступать к следущему уроку!'''
-                    bot.send_message(chat_id, result)
+            continue
         except ConnectionError:
-            response = get_response(URL, headers, params)
-            for attempt in response['new_attempts']:
-                if attempt['is_negative']:
-                    result = f'''У Вас проверили работу "{attempt['lesson_title']}".
-    К сожалению, в работе нашлись ошибки'''
-                    bot.send_message(chat_id, result)
-                else:
-                    result = f'''У Вас проверили работу "{attempt['lesson_title']}".
-    Преподавателю всё понравилось, можно приступать к следущему уроку!'''
-                    bot.send_message(chat_id, result)
+            continue
 
 
 if __name__ == '__main__':
