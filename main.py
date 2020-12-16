@@ -3,6 +3,7 @@ import telebot
 import os
 from dotenv import load_dotenv
 import textwrap as tw
+import time
 
 
 URL = 'https://dvmn.org/api/long_polling/'
@@ -12,6 +13,11 @@ def get_response(url, headers, params={}):
     response = requests.get(url, headers=headers, params=params)
     response.raise_for_status()
     return response.json()
+
+
+def send_message(text, bot, tg_chat_id):
+    result = tw.dedent(text)
+    bot.send_message(tg_chat_id, result)
 
 
 def main():
@@ -30,25 +36,28 @@ def main():
         params = {'timestamp': timestamp}
         try:
             response = get_response(URL, headers, params)
-            for attempt in response['new_attempts']:
-                if attempt['is_negative']:
-                    text = f'''\
-                    	 У Вас проверили работу "{attempt['lesson_title']}".
-                         К сожалению, в работе нашлись ошибки
-                        '''
-                    result = tw.dedent(text)
-                    bot.send_message(tg_chat_id, result)
-                else:
-                    text =  f'''\
-                    	У Вас проверили работу "{attempt['lesson_title']}".
-                        Преподавателю всё понравилось, можно приступать к следущему уроку!
-                        '''
-                    result = tw.dedent(text)
-                    bot.send_message(tg_chat_id, result)
-            timestamp = response['new_attempts'][0]['timestamp']
+            if response['status'] == 'timeout':
+                timestamp = response['timestamp_to_request']
+                continue
+            else:
+                for attempt in response['new_attempts']:
+                    if attempt['is_negative']:
+                        text = f'''\
+                               У Вас проверили работу "{attempt['lesson_title']}".
+                               К сожалению, в работе нашлись ошибки
+                               '''
+                        send_message(text, bot, tg_chat_id)
+                    else:
+                        text = f'''\
+                                У Вас проверили работу "{attempt['lesson_title']}".
+                                Преподавателю всё понравилось, можно приступать к следущему уроку!
+                                '''
+                        send_message(text, bot, tg_chat_id)
+                timestamp = response['last_attempt_timestamp']
         except requests.exceptions.ReadTimeout:
             continue
         except ConnectionError:
+            time.sleep(1000)
             continue
 
 
