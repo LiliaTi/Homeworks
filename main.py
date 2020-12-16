@@ -15,11 +15,6 @@ def get_response(url, headers, params={}):
     return response.json()
 
 
-def send_message(text, bot, tg_chat_id):
-    result = tw.dedent(text)
-    bot.send_message(tg_chat_id, result)
-
-
 def main():
     load_dotenv()
     tg_chat_id = os.getenv('TG_CHAT_ID')
@@ -46,13 +41,13 @@ def main():
                                У Вас проверили работу "{attempt['lesson_title']}".
                                К сожалению, в работе нашлись ошибки
                                '''
-                        send_message(text, bot, tg_chat_id)
                     else:
                         text = f'''\
                                 У Вас проверили работу "{attempt['lesson_title']}".
                                 Преподавателю всё понравилось, можно приступать к следущему уроку!
                                 '''
-                        send_message(text, bot, tg_chat_id)
+                result = tw.dedent(text)
+                bot.send_message(tg_chat_id, result)
                 timestamp = response['last_attempt_timestamp']
         except requests.exceptions.ReadTimeout:
             continue
