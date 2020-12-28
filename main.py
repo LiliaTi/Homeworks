@@ -1,7 +1,6 @@
 import requests
 import telebot
 import os
-from dotenv import load_dotenv
 import textwrap as tw
 import time
 
@@ -16,10 +15,9 @@ def get_response(url, headers, params={}):
 
 
 def main():
-    load_dotenv()
-    tg_chat_id = os.environ('TG_CHAT_ID')
-    devman_token = 'Token {}'.format(os.environ('DEVMAN_TOKEN'))
-    bot_token = os.environ('BOT_TOKEN')
+    tg_chat_id = os.environ.get('TG_CHAT_ID')
+    devman_token = 'Token {}'.format(os.environ.get('DEVMAN_TOKEN'))
+    bot_token = os.environ.get('BOT_TOKEN')
     headers = {
         'Authorization': devman_token
     }
