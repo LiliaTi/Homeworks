@@ -17,9 +17,9 @@ def get_response(url, headers, params={}):
 
 def main():
     load_dotenv()
-    tg_chat_id = os.getenv('TG_CHAT_ID')
-    devman_token = 'Token {}'.format(os.getenv('DEVMAN_TOKEN'))
-    bot_token = os.getenv('BOT_TOKEN')
+    tg_chat_id = os.environ('TG_CHAT_ID')
+    devman_token = 'Token {}'.format(os.environ('DEVMAN_TOKEN'))
+    bot_token = os.environ('BOT_TOKEN')
     headers = {
         'Authorization': devman_token
     }
