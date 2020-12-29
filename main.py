@@ -68,6 +68,7 @@ def main():
                 continue
         except Exception:
             logger.exception()
+            continue
 
 
 if __name__ == '__main__':
