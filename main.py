@@ -32,10 +32,11 @@ def main():
             log_entry = self.format(record)
             bot.send_message(tg_chat_id, log_entry)
 
-    logger = telebot.logger.getLogger("Bot logger")
+    logger = logging.getLogger("Bot logger")
     logger.setLevel(logging.INFO)
     logger.addHandler(MyLogsHandler())
-
+    
+    logger.info('Привет, я - логер')
 
     timestamp = None
     while True:
