@@ -34,11 +34,8 @@ def main():
     logger.setLevel(logging.INFO)
     logger.addHandler(MyLogsHandler())
     
-    try:
-        res = 5 / 0
-        bot.send_message(tg_chat_id, res)
-    except ZeroDivisionError:
-        loger.info('бот упал с ошибкой: division by zero')
+    
+    logger.info('Я новый логер')
 
     timestamp = None
     while True:
