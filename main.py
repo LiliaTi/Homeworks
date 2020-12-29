@@ -32,15 +32,10 @@ def main():
             log_entry = self.format(record)
             bot.send_message(tg_chat_id, log_entry)
 
-    logger = logging.getLogger("Bot logger")
+    logger = telebot.logger.getLogger("Bot logger")
     logger.setLevel(logging.INFO)
     logger.addHandler(MyLogsHandler())
 
-    try:
-        res = 5 / 0
-        bot.send_message(tg_chat_id, res)
-    except ZeroDivisionError:
-        logger.info('возникла ошибка:division by zero')
 
     timestamp = None
     while True:
