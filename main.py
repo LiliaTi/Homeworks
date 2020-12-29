@@ -3,6 +3,7 @@ import telebot
 import os
 import textwrap as tw
 import time
+import logging
 
 
 URL = 'https://dvmn.org/api/long_polling/'
@@ -23,6 +24,7 @@ def main():
     }
 
     bot = telebot.TeleBot(token=bot_token)
+    logging.warning('Бот запущеня')
 
     timestamp = None
     while True:
