@@ -24,7 +24,21 @@ def main():
     }
 
     bot = telebot.TeleBot(token=bot_token)
-    logging.warning('Бот запущеня')
+    
+    class MyLogsHandler(logging.Handler):
+
+        def emit(self, record):
+            bot.send_message(tg_chat_id, record)
+            
+    logger = logging.getLogger("Bot logger")
+    logger.setLevel(logging.INFO)
+    logger.addHandler(MyLogsHandler())
+    
+    try:
+        res = 5 / 0
+        bot.send_message(tg_chat_id, res)
+    except ZeroDivisionError:
+        loger.info('бот упал с ошибкой: division by zero')
 
     timestamp = None
     while True:
