@@ -40,32 +40,35 @@ def main():
 
     timestamp = None
     while True:
-        params = {'timestamp': timestamp}
         try:
-            response = get_response(URL, headers, params)
-            if response['status'] == 'timeout':
-                timestamp = response['timestamp_to_request']
+            params = {'timestamp': timestamp}
+            try:
+                response = get_response(URL, headers, params)
+                if response['status'] == 'timeout':
+                    timestamp = response['timestamp_to_request']
+                    continue
+                else:
+                    for attempt in response['new_attempts']:
+                        if attempt['is_negative']:
+                            text = f'''\
+                                   У Вас проверили работу "{attempt['lesson_title']}".
+                                   К сожалению, в работе нашлись ошибки
+                                   '''
+                        else:
+                            text = f'''\
+                                    У Вас проверили работу "{attempt['lesson_title']}".
+                                    Преподавателю всё понравилось, можно приступать к следущему уроку!
+                                    '''
+                    result = tw.dedent(text)
+                    bot.send_message(tg_chat_id, result)
+                    timestamp = response['last_attempt_timestamp']
+            except requests.exceptions.ReadTimeout:
                 continue
-            else:
-                for attempt in response['new_attempts']:
-                    if attempt['is_negative']:
-                        text = f'''\
-                               У Вас проверили работу "{attempt['lesson_title']}".
-                               К сожалению, в работе нашлись ошибки
-                               '''
-                    else:
-                        text = f'''\
-                                У Вас проверили работу "{attempt['lesson_title']}".
-                                Преподавателю всё понравилось, можно приступать к следущему уроку!
-                                '''
-                result = tw.dedent(text)
-                bot.send_message(tg_chat_id, result)
-                timestamp = response['last_attempt_timestamp']
-        except requests.exceptions.ReadTimeout:
-            continue
-        except ConnectionError:
-            time.sleep(1000)
-            continue
+            except ConnectionError:
+                time.sleep(1000)
+                continue
+        except Exception:
+            logger.exception()
 
 
 if __name__ == '__main__':
