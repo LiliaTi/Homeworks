@@ -8,6 +8,8 @@ import logging
 
 URL = 'https://dvmn.org/api/long_polling/'
 
+logger = logging.getLogger("Bot logger")
+
 
 def get_response(url, headers, params={}):
     response = requests.get(url, headers=headers, params=params)
@@ -28,15 +30,15 @@ def main():
     class MyLogsHandler(logging.Handler):
 
         def emit(self, record):
-            logging.basicConfig(format="%(process)d %(levelname)s %(message)s")
             log_entry = self.format(record)
             bot.send_message(tg_chat_id, log_entry)
 
-    logger = logging.getLogger("Bot logger")
+    logging.basicConfig(format="%(process)d %(levelname)s %(message)s")
     logger.setLevel(logging.INFO)
     logger.addHandler(MyLogsHandler())
-    
 
+    logger.info('Я новый логер!')
+    
     timestamp = None
     while True:
         try:
