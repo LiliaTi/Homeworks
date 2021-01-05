@@ -37,8 +37,6 @@ def main():
     logger.setLevel(logging.INFO)
     logger.addHandler(MyLogsHandler())
 
-    logger.info('Я новый логер!')
-    
     timestamp = None
     while True:
         try:
