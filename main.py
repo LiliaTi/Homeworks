@@ -58,8 +58,8 @@ def main():
                                     У Вас проверили работу "{attempt['lesson_title']}".
                                     Преподавателю всё понравилось, можно приступать к следущему уроку!
                                     '''
-                    result = tw.dedent(text)
-                    bot.send_message(tg_chat_id, result)
+                        result = tw.dedent(text)
+                        bot.send_message(tg_chat_id, result)
                     timestamp = response['last_attempt_timestamp']
             except requests.exceptions.ReadTimeout:
                 continue
